@@ -1,0 +1,105 @@
+<html>
+    <main>
+        <div> 
+            <button id="add_note" onclick="enableNote()">Add Note</button>
+            <button id="save" onclick="save()">Save</button>
+            <input type="text" id="file_name" style="max-width: 150px;">
+            <button onclick="change()">Change to Desired Image</button>
+            <form method="post" enctype="multipart/form-data" action="">
+                <input type="file" name="file">
+                <input type="submit" value="Upload File">
+            </form>            
+            <div id="parent" name='disabled' onclick="testFunction(event)">
+            </div>
+            <div>
+                <p id="note_title">
+                </p>
+                <p id="note_content">
+                </p>
+            </div>
+        </div>
+        <script>
+            var titles = new Array();
+            var contents = new Array();
+            var buttons = new Array();
+
+            function testFunction(event) {
+                var m = document.getElementById("parent");
+                if (m.name == 'enabled') {
+                var x = event.offsetX;
+                var y = event.offsetY;
+                var b = document.createElement('button');
+                var title = prompt("Enter the name of this note:");
+                titles.push(title);
+                console.log(index);
+                var index = titles.length - 1;
+                b.id = index;
+                var content = prompt("What will the note say?");
+                contents.push(content);
+                index = contents.length - 1;
+                b.name = index;
+                b.style.position = "absolute";
+                b.textContent = title;
+                b.style.left = x;
+                b.style.top = y;
+                b.setAttribute("onClick", "javascript: displayInfo(this.id, this.name);");
+                buttons.push(b);
+                m.appendChild(b);
+                m.name = 'disabled';
+                } else {
+
+                }
+            }
+
+            function change() {
+                var input = document.getElementById("file_name");
+                var parent = document.getElementById("parent");
+                parent.style.backgroundImage = "url('" + input.value + "')";
+            }
+
+            function enableNote() {
+                document.getElementById("parent").name = 'enabled';
+            }
+
+            function displayInfo(t, c) {
+                var m = document.getElementById("note_title");
+                m.textContent = titles[t];
+                m = document.getElementById("note_content");
+                m.textContent = contents[c];
+            }
+
+            function save() {
+                var data = new Array();
+                for (var v = 0; v < 3; v++) {
+                    if (v == 0)
+                    data.push(titles);
+                    else if (v == 1)
+                    data.push(contents);
+                    else if (v == 2)
+                    data.push(buttons);
+                }
+                var package = JSON.stringify(data);
+                fetch('127.0.0.1', {
+                    method: 'POST',
+                    body: data
+                })
+                .then(response => response.json())
+                .then(response => console.log(JSON.stringify(response)))
+            }
+            function load() {
+
+            }
+        </script>
+
+        <style>
+            #parent {
+                background-repeat: no-repeat;
+                width: 600px;
+                height: 600px;
+                min-width: 200px;
+                min-height: 200px;
+                
+            }
+        </style>
+    </main> 
+</html>
