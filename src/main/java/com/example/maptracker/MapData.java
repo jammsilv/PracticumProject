@@ -17,6 +17,7 @@ public class MapData {
         this.notes_content = new HashMap<Point, String>();
         this.notes_titles = new HashMap<Point, String>();
     }
+    // creating a New Map
     public MapData(BufferedImage mapImage) {
         this.mapImage = mapImage;
         this.notes_content = new HashMap<Point, String>();
