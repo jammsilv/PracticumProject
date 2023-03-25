@@ -18,8 +18,8 @@ import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Map;
 //hi github
 
 public class HelloController {
@@ -53,15 +53,8 @@ public class HelloController {
     //Figure out what the method for saving everything is, most likely through making a directory
     //Will do further research into using serialization/deserialization for saving information
 
-
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
-    }
     @FXML
     protected void onNewMapButtonClick() throws IOException {
-        // String project_name = "";
-        // Create a dialogue window that asks for an image and a name for the map
         this.map_image = new ImageView();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("map-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
@@ -120,17 +113,72 @@ public class HelloController {
         }
     }
 
-    protected MapData openProject() { //Finish implementation
-        MapData temp = new MapData();
+    @FXML
+    protected void openProject() { //Finish implementation
+        try {
+            FileInputStream fileIn = new FileInputStream("main.ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            data = (MapData) in.readObject();
+            data.setImage(ImageIO.read(in));
+            map_image.setImage(SwingFXUtils.toFXImage(data.getImage(), null));
+            for (Map.Entry<Point,String> entry : data.getNoteContentList().entrySet()) {
+                Label l = new Label();
+                l.setText("☆");
+                l.setLayoutX(entry.getKey().getX() + 7);
+                l.setLayoutY(entry.getKey().getY() + 36);
+                l.setFont(new Font("Arial", 20));
+                anchor_window.getChildren().add(l);
+                Label l1 = new Label(data.getNoteTitle(entry.getKey()));
+                l1.setOnMouseClicked(e -> {
+                    try {
+                        ContentDialog.display(data.getNoteTitle(entry.getKey()), data.getNoteContent(entry.getKey()));
+                    } catch (IOException f) {
 
-        return temp;
+                    }
+                });
+                l.setOnMouseClicked(e -> {
+                    if (deleteEnabled) {
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setContentText("Are you sure you want to delete this element?");
+                        alert.setTitle("Delete Note");
+                        alert.getButtonTypes().setAll(yes, cancel);
+                        alert.showAndWait().ifPresent(type -> {
+                            if (type == yes) {
+                                scroll_pane_vbox.getChildren().remove(l1);
+                                data.removeNote(entry.getKey());
+                                anchor_window.getChildren().remove(l);
+                                deleteEnabled = false;
+                                edit_status.setText("Edit Disabled");
+                            }
+                        });
+                    }
+                });
+                scroll_pane_vbox.getChildren().add(l1);
+            }
+            in.close();
+            fileIn.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+            return;
+        } catch (ClassNotFoundException c) {
+            System.out.println("Employee class not found");
+            c.printStackTrace();
+            return;
+        }
     }
     @FXML
     protected void saveProject() { // Finish implementation
-        Dialog<String> saveWindow = new Dialog();
-        saveWindow.setContentText("Test dialog for saving");
-        saveWindow.getDialogPane().getButtonTypes().add(ok);
-        saveWindow.showAndWait();
+        try {
+            File file = new File("main.ser");
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(data);
+            ImageIO.write(data.getImage(), "png", out);
+            out.close();
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
     }
 
     protected boolean closeProject() { // Finish implementation

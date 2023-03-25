@@ -5,9 +5,9 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapData {
+public class MapData implements java.io.Serializable {
 
-    private BufferedImage mapImage;
+    transient private BufferedImage mapImage;
     private Map<Point, String> notes_content;
     private Map<Point, String> notes_titles;
 
@@ -51,6 +51,12 @@ public class MapData {
     private void modifyNote(Point p, String content, String title) {
         notes_content.replace(p, content);
         notes_titles.replace(p, title);
+    }
+    public Map<Point, String> getNoteTitleList() {
+        return notes_titles;
+    }
+    public Map<Point, String> getNoteContentList() {
+        return notes_content;
     }
 
     public String getNoteTitle(Point p) {

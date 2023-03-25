@@ -11,6 +11,6 @@
     </padding>
 
     <Label fx:id="welcomeText" text="Welcome to Map Annotator!" />
-    <Button onAction="#onHelloButtonClick" text="Open Map" />
+    <Button onAction="#onNewMapButtonClick" text="Open Map" />
     <Button onAction="#onNewMapButtonClick" text="New Map" />
 </VBox>
