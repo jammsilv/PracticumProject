@@ -1,13 +1,13 @@
 package com.example.maptracker;
 
-import javafx.application.Platform;
-import javafx.event.EventHandler;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -17,18 +17,15 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Button;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-import java.util.jar.JarFile;
-//hi github
+
 
 public class HelloController {
 
@@ -37,13 +34,21 @@ public class HelloController {
     @FXML
     private VBox scroll_pane_vbox;
     @FXML
-    private Label welcomeText;
-    @FXML
     private Label edit_status;
     @FXML
     private ImageView map_image;
     @FXML
     private ChoiceBox color_choice_box;
+    // CONTENT WINDOW  V
+    @FXML
+    private Button delete_note_button;
+    @FXML
+    private Button edit_note_button;
+    @FXML
+    private Label note_title_label;
+    @FXML
+    private Label note_content_label;
+    // CONTENT WINDOW ^
     private MapData data = new MapData();
     private String saveName;
     private final ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
@@ -54,7 +59,6 @@ public class HelloController {
     private File mainFile;
     private boolean editEnabled = false;
     private boolean saved = true;
-    private boolean deleteEnabled = false;
     private final String[] colors = {"Black", "White", "Gray", "Red", "Blue",
                                 "Yellow", "Green", "Blue", "Purple", "Pink"};
     private ArrayList<Label> note_markers = new ArrayList<Label>();
@@ -84,25 +88,12 @@ public class HelloController {
         if (data.getImage() != null) {
             editEnabled = !editEnabled;
             if (editEnabled) {
-                deleteEnabled = false;
                 edit_status.setText("Edit Enabled");
                 edit_status.setTextFill(Paint.valueOf("Green"));
             } else {
                 edit_status.setText("Edit Disabled");
                 edit_status.setTextFill(Paint.valueOf("Red"));
             }
-        }
-    }
-
-    @FXML
-    protected void enableDeletion() {
-        deleteEnabled = !deleteEnabled;
-        if (deleteEnabled) {
-            editEnabled = false;
-            edit_status.setText("DELETE ENABLED");
-            edit_status.setTextFill(Paint.valueOf("Red"));
-        } else {
-            edit_status.setText("Edit Disabled");
         }
     }
 
@@ -180,19 +171,21 @@ public class HelloController {
                             l.setLayoutX(entry.getKey().getX() + 7);
                             l.setLayoutY(entry.getKey().getY() + 36);
                             l.setFont(new Font("Arial", 20));
+                            l.setTooltip(new Tooltip("Title: " + data.getNoteTitle(entry.getKey()) + "\n"
+                                    + "Content: " + data.getNoteContent(entry.getKey())));
                             note_markers.add(l);
                             anchor_window.getChildren().add(l);
                             Label l1 = new Label(data.getNoteTitle(entry.getKey()));
                             l1.setId(Integer.toString(i));
+                            String fTitle = data.getNoteTitle(entry.getKey());
+                            String fNote = data.getNoteContent(entry.getKey());
                             l1.setOnMouseClicked(e -> {
-                                try {
-                                    ContentDialog.display(data.getNoteTitle(entry.getKey()), data.getNoteContent(entry.getKey()));
-                                } catch (IOException f) {
+                                note_title_label.setText(fTitle);
+                                note_content_label.setText(fNote);
+                                edit_note_button.setOnAction(f -> { // This is gonna be complex
 
-                                }
-                            });
-                            l.setOnMouseClicked(e -> {
-                                if (deleteEnabled) {
+                                });
+                                delete_note_button.setOnAction(f -> {
                                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                                     alert.setContentText("Are you sure you want to delete this element?");
                                     alert.setTitle("Delete Note");
@@ -202,11 +195,33 @@ public class HelloController {
                                             scroll_pane_vbox.getChildren().remove(l1);
                                             data.removeNote(entry.getKey());
                                             anchor_window.getChildren().remove(l);
-                                            deleteEnabled = false;
-                                            edit_status.setText("Edit Disabled");
+                                            note_title_label.setText("");
+                                            note_content_label.setText("");
                                         }
                                     });
-                                }
+                                });
+                            });
+                            l.setOnMouseClicked(e -> {
+                                note_title_label.setText(fTitle);
+                                note_content_label.setText(fNote);
+                                edit_note_button.setOnAction(f -> { // This is gonna be complex
+
+                                });
+                                delete_note_button.setOnAction(f -> {
+                                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                    alert.setContentText("Are you sure you want to delete this element?");
+                                    alert.setTitle("Delete Note");
+                                    alert.getButtonTypes().setAll(yes, cancel);
+                                    alert.showAndWait().ifPresent(type -> {
+                                        if (type == yes) {
+                                            scroll_pane_vbox.getChildren().remove(l1);
+                                            data.removeNote(entry.getKey());
+                                            anchor_window.getChildren().remove(l);
+                                            note_title_label.setText("");
+                                            note_content_label.setText("");
+                                        }
+                                    });
+                                });
                             });
                             note_list.add(l1);
                             scroll_pane_vbox.getChildren().add(l1);
@@ -231,7 +246,7 @@ public class HelloController {
             }
     }
     @FXML
-    protected void saveProject() { // Finish implementation
+    protected void saveProject() {
         File selection = fileChoice.showSaveDialog(stage);
         try {
             FileOutputStream fileOut = new FileOutputStream(selection);
@@ -283,19 +298,20 @@ public class HelloController {
                         b.setText("☆");
                         b.setId(Integer.toString(data.getNoteMapSize() - 1));
                         b.setFont(new Font("Arial", 20));
+                        b.setTooltip(new Tooltip("Title: " + title + "\n" + "Content: " + note));
                         note_markers.add(b);
                         anchor_window.getChildren().add(b);
                         Label l = new Label(title);
                         l.setId(Integer.toString(data.getNoteMapSize() - 1));
+                        String fTitle = title;
+                        String fNote = note;
                         l.setOnMouseClicked(e -> {
-                            try {
-                                ContentDialog.display(data.getNoteTitle(p), data.getNoteContent(p));
-                            } catch (IOException f) {
+                            note_title_label.setText(fTitle);
+                            note_content_label.setText(fNote);
+                            edit_note_button.setOnAction(f -> { // This is gonna be complex
 
-                            }
-                        });
-                        b.setOnMouseClicked(e -> {
-                            if (deleteEnabled) {
+                            });
+                            delete_note_button.setOnAction(f -> {
                                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                                 alert.setContentText("Are you sure you want to delete this element?");
                                 alert.setTitle("Delete Note");
@@ -305,11 +321,33 @@ public class HelloController {
                                         scroll_pane_vbox.getChildren().remove(l);
                                         data.removeNote(p);
                                         anchor_window.getChildren().remove(b);
-                                        deleteEnabled = false;
-                                        edit_status.setText("Edit Disabled");
+                                        note_title_label.setText("");
+                                        note_content_label.setText("");
                                     }
                                 });
-                            }
+                            });
+                        });
+                        b.setOnMouseClicked(e -> {
+                            note_title_label.setText(fTitle);
+                            note_content_label.setText(fNote);
+                            edit_note_button.setOnAction(f -> { // This is gonna be complex
+
+                            });
+                            delete_note_button.setOnAction(f -> {
+                                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                alert.setContentText("Are you sure you want to delete this element?");
+                                alert.setTitle("Delete Note");
+                                alert.getButtonTypes().setAll(yes, cancel);
+                                alert.showAndWait().ifPresent(type -> {
+                                    if (type == yes) {
+                                        scroll_pane_vbox.getChildren().remove(l);
+                                        data.removeNote(p);
+                                        anchor_window.getChildren().remove(b);
+                                        note_title_label.setText("");
+                                        note_content_label.setText("");
+                                    }
+                                });
+                            });
                         });
                         note_list.add(l);
                         scroll_pane_vbox.getChildren().add(l);

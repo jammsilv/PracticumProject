@@ -7,22 +7,45 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchor_window" prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.maptracker.HelloController">
+<AnchorPane fx:id="anchor_window" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="890.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.maptracker.HelloController">
    <children>
-      <Button onAction="#openProject" layoutX="10.0" layoutY="14.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Open Map" />
-      <Button layoutX="96.0" layoutY="14.0" mnemonicParsing="false" onAction="#saveProject" prefHeight="26.0" prefWidth="45.0" text="Save" />
-      <Label layoutX="491.0" layoutY="18.0" text="Notes" />
-      <ImageView fx:id="map_image" fitHeight="360.0" fitWidth="360.0" layoutX="14.0" layoutY="48.0" onMouseClicked="#addMapNote" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="72.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="266.0" AnchorPane.topAnchor="48.0" />
-      <Button id="upload" layoutX="383.0" layoutY="418.0" mnemonicParsing="false" onAction="#uploadImage" text="Upload Image" />
-      <Button fx:id="enable_edit" layoutX="227.0" layoutY="14.0" mnemonicParsing="false" onAction="#enableEdit" text="Enable Edit" />
-      <ScrollPane layoutX="383.0" layoutY="48.0" prefHeight="360.0" prefWidth="248.0" AnchorPane.bottomAnchor="72.0" AnchorPane.rightAnchor="9.0">
+      <Button layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#openProject" prefHeight="26.0" prefWidth="75.0" text="Open Map" />
+      <Button layoutX="111.0" layoutY="13.0" mnemonicParsing="false" onAction="#saveProject" prefHeight="26.0" prefWidth="45.0" text="Save" />
+      <Label layoutX="698.0" layoutY="18.0" text="Notes" />
+      <ImageView fx:id="map_image" fitHeight="512.0" fitWidth="512.0" layoutX="14.0" layoutY="48.0" onMouseClicked="#addMapNote" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="434.0" AnchorPane.topAnchor="48.0" />
+      <Button id="upload" layoutX="203.0" layoutY="585.0" mnemonicParsing="false" onAction="#uploadImage" prefHeight="38.0" prefWidth="134.0" text="Upload Image">
+         <font>
+            <Font size="16.0" />
+         </font></Button>
+      <Button fx:id="enable_edit" layoutX="356.0" layoutY="14.0" mnemonicParsing="false" onAction="#enableEdit" text="Add Note" />
+      <ScrollPane layoutX="564.0" layoutY="48.0" prefHeight="290.0" prefWidth="300.0">
          <content>
-            <VBox fx:id="scroll_pane_vbox" prefHeight="362.0" prefWidth="232.0" />
+            <VBox fx:id="scroll_pane_vbox" prefHeight="310.0" prefWidth="294.0" />
          </content>
       </ScrollPane>
-      <Label fx:id="edit_status" layoutX="312.0" layoutY="14.0" prefHeight="26.0" prefWidth="82.0" text="Edit Disabled" textAlignment="CENTER" textFill="RED" />
-      <Button fx:id="enable_deletion" layoutX="157.0" layoutY="14.0" mnemonicParsing="false" onAction="#enableDeletion" text="Delete" />
-      <ChoiceBox fx:id="color_choice_box" layoutX="119.0" layoutY="418.0" prefWidth="150.0" value="Black" />
+      <Label fx:id="edit_status" alignment="CENTER" layoutX="434.0" layoutY="13.0" prefHeight="26.0" prefWidth="85.0" text="Edit Disabled" textAlignment="CENTER" textFill="RED" />
+      <ChoiceBox fx:id="color_choice_box" layoutX="180.0" layoutY="14.0" prefWidth="150.0" value="Black" />
+      <ScrollPane layoutX="564.0" layoutY="349.0" prefHeight="289.0" prefWidth="300.0">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="288.0" prefWidth="296.0">
+               <children>
+                  <Button fx:id="edit_note_button" layoutX="245.0" layoutY="16.0" mnemonicParsing="false" text="Edit" />
+                  <Button fx:id="delete_note_button" layoutX="14.0" layoutY="16.0" mnemonicParsing="false" text="Delete" />
+                  <Label fx:id="note_content_label" alignment="TOP_LEFT" layoutX="15.0" layoutY="59.0" prefHeight="214.0" prefWidth="266.0" wrapText="true">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="note_title_label" alignment="CENTER" layoutX="120.0" layoutY="11.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
    </children>
 </AnchorPane>
