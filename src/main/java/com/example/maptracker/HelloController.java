@@ -1,6 +1,6 @@
 package com.example.maptracker;
 
-
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +19,6 @@ import javafx.stage.Stage;
 import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -50,27 +49,30 @@ public class HelloController {
     private Label note_content_label;
     // CONTENT WINDOW ^
     private MapData data = new MapData();
-    private String saveName;
     private final ButtonType ok = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
     private final ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
     private final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+    private final ButtonType current_note_title = new ButtonType("Title");
+    private final ButtonType current_note_content = new ButtonType("Content");
+    private final ButtonType current_note_both = new ButtonType("Both Title and Content");
     private final FileChooser fileChoice = new FileChooser();
     private Stage stage;
-    private File mainFile;
+    private File mainFile = null;
     private boolean editEnabled = false;
     private boolean saved = true;
     private final String[] colors = {"Black", "White", "Gray", "Red", "Blue",
                                 "Yellow", "Green", "Blue", "Purple", "Pink"};
-    private ArrayList<Label> note_markers = new ArrayList<Label>();
-    private ArrayList<Label> note_list = new ArrayList<Label>();
+    private ArrayList<Label> note_markers = new ArrayList<>();
+    private ArrayList<Label> note_list = new ArrayList<>();
+    private EventHandler handleClick;
 
 // CURRENT TO DO LIST
     // Implement Saving/Loading from any directory, not a preset one [ DONE ]
-        // Make Opening a Project clear the current Project
-        // Make a "MAIN FILE" that lets you hit "Save" without pulling up the dialog each time
-    // Implement Editing/Appending Notes
-    // Edit how notes are displayed, making a new label below the current one that displays all the necessary information
-         // Also add deletion/appending notes to this new method of display
+        // Make Opening a Project clear the current Project [ DONE ]
+        // Make a "MAIN FILE" that lets you hit "Save" without pulling up the dialog each time [ ??? ]
+    // Implement Editing/Appending Notes [ IN PROGRESS ... ]
+    // Edit how notes are displayed, making a new label below the current one that displays all the necessary information [ DONE ]
+         // Also add deletion/appending notes to this new method of display [ DONE ]
 
     @FXML
     protected void onNewMapButtonClick() throws IOException {
@@ -98,7 +100,7 @@ public class HelloController {
     }
 
     protected void warningWindow(String s) {
-        Dialog<String> warningWindow = new Dialog();
+        Dialog<String> warningWindow = new Dialog<>();
         warningWindow.setContentText("Warning! " + s);
         warningWindow.getDialogPane().getButtonTypes().add(ok);
         warningWindow.show();
@@ -123,16 +125,20 @@ public class HelloController {
     @FXML
     protected void openProject() { //Finish implementation
         boolean contin = false;
-        if (saved == false) {
-            Dialog<ButtonType> saveWarning = new Dialog();
+        if (!saved) {
+            Dialog<ButtonType> saveWarning = new Dialog<>();
             saveWarning.setContentText("Warning! You are about to open a new project. Any data that is unsaved will be lost. Do you wish to continue?");
             saveWarning.getDialogPane().getButtonTypes().add(yes);
             saveWarning.getDialogPane().getButtonTypes().add(cancel); // Maybe add "Save and Continue"?
             Optional<ButtonType> bt = saveWarning.showAndWait();
-            if (bt.get() == cancel) { // figure out how to check if the operation was cancelled
+            if (bt.isPresent()) {
+                if (bt.get() == cancel) { // figure out how to check if the operation was cancelled
+                    contin = false;
+                } else if (bt.get() == yes) {
+                    contin = true;
+                }
+            } else {
                 contin = false;
-            } else if (bt.get() == yes){
-                contin = true;
             }
         } else {
             contin = true;
@@ -144,6 +150,7 @@ public class HelloController {
                         FileInputStream fileIn = new FileInputStream(selection);
                         ObjectInputStream in = new ObjectInputStream(fileIn);
                         if (data != null) {
+                            mainFile = selection;
                             ArrayList<Point> temp_points = new ArrayList<>();
                             for (Map.Entry<Point, String> entry : data.getNoteContentList().entrySet()) {
                                 temp_points.add(entry.getKey());
@@ -179,50 +186,9 @@ public class HelloController {
                             l1.setId(Integer.toString(i));
                             String fTitle = data.getNoteTitle(entry.getKey());
                             String fNote = data.getNoteContent(entry.getKey());
-                            l1.setOnMouseClicked(e -> {
-                                note_title_label.setText(fTitle);
-                                note_content_label.setText(fNote);
-                                edit_note_button.setOnAction(f -> { // This is gonna be complex
-
-                                });
-                                delete_note_button.setOnAction(f -> {
-                                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                                    alert.setContentText("Are you sure you want to delete this element?");
-                                    alert.setTitle("Delete Note");
-                                    alert.getButtonTypes().setAll(yes, cancel);
-                                    alert.showAndWait().ifPresent(type -> {
-                                        if (type == yes) {
-                                            scroll_pane_vbox.getChildren().remove(l1);
-                                            data.removeNote(entry.getKey());
-                                            anchor_window.getChildren().remove(l);
-                                            note_title_label.setText("");
-                                            note_content_label.setText("");
-                                        }
-                                    });
-                                });
-                            });
-                            l.setOnMouseClicked(e -> {
-                                note_title_label.setText(fTitle);
-                                note_content_label.setText(fNote);
-                                edit_note_button.setOnAction(f -> { // This is gonna be complex
-
-                                });
-                                delete_note_button.setOnAction(f -> {
-                                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                                    alert.setContentText("Are you sure you want to delete this element?");
-                                    alert.setTitle("Delete Note");
-                                    alert.getButtonTypes().setAll(yes, cancel);
-                                    alert.showAndWait().ifPresent(type -> {
-                                        if (type == yes) {
-                                            scroll_pane_vbox.getChildren().remove(l1);
-                                            data.removeNote(entry.getKey());
-                                            anchor_window.getChildren().remove(l);
-                                            note_title_label.setText("");
-                                            note_content_label.setText("");
-                                        }
-                                    });
-                                });
-                            });
+                            handleClick = (EventHandler<MouseEvent>) mouseEvent -> sideWindowLoader(fTitle, fNote, entry.getKey(), l1, l);
+                            l.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            l1.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
                             note_list.add(l1);
                             scroll_pane_vbox.getChildren().add(l1);
                         }
@@ -240,32 +206,138 @@ public class HelloController {
                         return;
                     }
                     mainFile = selection;
-                } else {
-                    warningWindow("No File was Selected!");
                 }
             }
     }
     @FXML
     protected void saveProject() {
-        File selection = fileChoice.showSaveDialog(stage);
-        try {
-            FileOutputStream fileOut = new FileOutputStream(selection);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(data);
-            ImageIO.write(data.getImage(), "png", out);
-            out.close();
-            fileOut.close();
-            mainFile = selection;
-            saved = true;
-        } catch (IOException i) {
-            i.printStackTrace();
+        File selection;
+        if (mainFile == null) {
+            selection = fileChoice.showSaveDialog(stage);
+            if (selection != null) {
+                mainFile = selection;
+            }
+        } else {
+            selection = mainFile;
+        }
+        if (selection != null) {
+            try {
+                FileOutputStream fileOut = new FileOutputStream(selection);
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(data);
+                ImageIO.write(data.getImage(), "png", out);
+                out.close();
+                fileOut.close();
+                mainFile = selection;
+                saved = true;
+                Dialog saved = new Dialog();
+                saved.setTitle("Saved");
+                saved.setContentText("Saved to file '" + selection.getName() + "'.");
+            } catch (IOException i) {
+                i.printStackTrace();
+            }
         }
     }
 
-    protected boolean closeProject() { // Finish implementation
-        return false;
+    protected void sideWindowLoader(String title, String note, Point p, Label l, Label b) {
+        note_title_label.setText(title);
+        note_content_label.setText(note);
+        edit_note_button.setOnAction(f -> {
+            Dialog<ButtonType> editWindow = new Dialog<>();
+            editWindow.setTitle("Edit Note");
+            editWindow.setContentText("What do you want to edit?");
+            editWindow.getDialogPane().getButtonTypes().add(current_note_title);
+            editWindow.getDialogPane().getButtonTypes().add(current_note_content);
+            editWindow.getDialogPane().getButtonTypes().add(current_note_both);
+            editWindow.getDialogPane().getButtonTypes().add(cancel);
+            Optional<ButtonType> bt = editWindow.showAndWait();
+            if (bt.isPresent()) {
+                if (bt.get() != cancel) {
+                    if (bt.get() == current_note_title) {
+                        TextInputDialog editTitle = new TextInputDialog(data.getNoteTitle(p));
+                        editTitle.setTitle("Edit Title");
+                        editTitle.setContentText("Please enter what you would like the new title to be.");
+                        editTitle.showAndWait();
+                        if (editTitle.getResult() != null) {
+                            l.removeEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            b.removeEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            String new_title = editTitle.getEditor().getText();
+                            data.modifyNote(p, data.getNoteContent(p), new_title);
+                            note_title_label.setText(data.getNoteTitle(p));
+                            b.setTooltip(new Tooltip("Title: " + data.getNoteTitle(p) + "\n" + "Content: " + data.getNoteContent(p)));
+                            l.setText(data.getNoteTitle(p));
+                            handleClick = (EventHandler<MouseEvent>) mouseEvent -> sideWindowLoader(data.getNoteTitle(p), data.getNoteContent(p), p, l, b);
+                            l.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            b.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            saved = false;
+                        }
+                    } else if (bt.get() == current_note_content) {
+                        TextInputDialog editContent = new TextInputDialog(data.getNoteContent(p));
+                        editContent.setTitle("Edit Content");
+                        editContent.setContentText("Please enter what you would like the content to be.");
+                        editContent.showAndWait();
+                        if (editContent.getResult() != null) {
+                            l.removeEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            b.removeEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            String new_content = editContent.getEditor().getText();
+                            data.modifyNote(p, new_content, data.getNoteTitle(p));
+                            note_content_label.setText(data.getNoteContent(p));
+                            b.setTooltip(new Tooltip("Title: " + data.getNoteTitle(p) + "\n" + "Content: " + data.getNoteContent(p)));
+                            l.setText(data.getNoteTitle(p));
+                            handleClick = (EventHandler<MouseEvent>) mouseEvent -> sideWindowLoader(data.getNoteTitle(p), data.getNoteContent(p), p, l, b);
+                            l.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            b.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                            saved = false;
+                        }
+                    } else if (bt.get() == current_note_both) {
+                        TextInputDialog editTitle = new TextInputDialog(data.getNoteTitle(p));
+                        editTitle.setTitle("Edit Title");
+                        editTitle.setContentText("Please enter what you would like the new title to be.");
+                        editTitle.showAndWait();
+                        if (editTitle.getResult() != null) {
+                            String new_title = editTitle.getEditor().getText();
+                            TextInputDialog editContent = new TextInputDialog(data.getNoteContent(p));
+                            editContent.setTitle("Edit Content");
+                            editContent.setContentText("Please enter what you would like the content to be.");
+                            editContent.showAndWait();
+                            if (editContent.getResult() != null) {
+                                l.removeEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                                b.removeEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                                String new_content = editContent.getEditor().getText();
+                                data.modifyNote(p, new_content, new_title);
+                                note_title_label.setText(data.getNoteTitle(p));
+                                note_content_label.setText(data.getNoteContent(p));
+                                b.setTooltip(new Tooltip("Title: " + data.getNoteTitle(p) + "\n" + "Content: " + data.getNoteContent(p)));
+                                l.setText(data.getNoteTitle(p));
+                                handleClick = (EventHandler<MouseEvent>) mouseEvent -> sideWindowLoader(data.getNoteTitle(p), data.getNoteContent(p), p, l, b);
+                                l.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                                b.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                                saved = false;
+                            }
+                        }
+                    } // End Last Check Case
+                } // End Cancel Check
+            } // End IsPresent Check
+        });
+        delete_note_button.setOnAction(f -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("Are you sure you want to delete this element?");
+            alert.setTitle("Delete Note");
+            alert.getButtonTypes().setAll(yes, cancel);
+            alert.showAndWait().ifPresent(type -> {
+                if (type == yes) {
+                    scroll_pane_vbox.getChildren().remove(l);
+                    note_list.remove(l);
+                    data.removeNote(p);
+                    anchor_window.getChildren().remove(b);
+                    note_markers.remove(b);
+                    note_title_label.setText("");
+                    note_content_label.setText("");
+                    saved = false;
+                }
+            });
+        });
     }
-
     @FXML
     protected void addMapNote(MouseEvent event) {
         if (editEnabled) {
@@ -287,72 +359,26 @@ public class HelloController {
                 tid.showAndWait();
                 if (tid.getResult() != null) {
                     String note = tid.getEditor().getText();
-                    if (note.equals("")) {
-                        warningWindow("No text was entered into the Content Window.");
-                    } else {
-                        data.addNote(p, note, title);
-                        Label b = new Label();
-                        b.setLayoutX((int) event.getX() + 7);
-                        b.setLayoutY((int) event.getY() + 36);
-                        b.setTextFill(Paint.valueOf(color_choice_box.getValue().toString()));
-                        b.setText("☆");
-                        b.setId(Integer.toString(data.getNoteMapSize() - 1));
-                        b.setFont(new Font("Arial", 20));
-                        b.setTooltip(new Tooltip("Title: " + title + "\n" + "Content: " + note));
-                        note_markers.add(b);
-                        anchor_window.getChildren().add(b);
-                        Label l = new Label(title);
-                        l.setId(Integer.toString(data.getNoteMapSize() - 1));
-                        String fTitle = title;
-                        String fNote = note;
-                        l.setOnMouseClicked(e -> {
-                            note_title_label.setText(fTitle);
-                            note_content_label.setText(fNote);
-                            edit_note_button.setOnAction(f -> { // This is gonna be complex
-
-                            });
-                            delete_note_button.setOnAction(f -> {
-                                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                                alert.setContentText("Are you sure you want to delete this element?");
-                                alert.setTitle("Delete Note");
-                                alert.getButtonTypes().setAll(yes, cancel);
-                                alert.showAndWait().ifPresent(type -> {
-                                    if (type == yes) {
-                                        scroll_pane_vbox.getChildren().remove(l);
-                                        data.removeNote(p);
-                                        anchor_window.getChildren().remove(b);
-                                        note_title_label.setText("");
-                                        note_content_label.setText("");
-                                    }
-                                });
-                            });
-                        });
-                        b.setOnMouseClicked(e -> {
-                            note_title_label.setText(fTitle);
-                            note_content_label.setText(fNote);
-                            edit_note_button.setOnAction(f -> { // This is gonna be complex
-
-                            });
-                            delete_note_button.setOnAction(f -> {
-                                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                                alert.setContentText("Are you sure you want to delete this element?");
-                                alert.setTitle("Delete Note");
-                                alert.getButtonTypes().setAll(yes, cancel);
-                                alert.showAndWait().ifPresent(type -> {
-                                    if (type == yes) {
-                                        scroll_pane_vbox.getChildren().remove(l);
-                                        data.removeNote(p);
-                                        anchor_window.getChildren().remove(b);
-                                        note_title_label.setText("");
-                                        note_content_label.setText("");
-                                    }
-                                });
-                            });
-                        });
-                        note_list.add(l);
-                        scroll_pane_vbox.getChildren().add(l);
-                        saved = false;
-                    } // End of Note Addition
+                    data.addNote(p, note, title);
+                    Label b = new Label();
+                    b.setLayoutX((int) event.getX() + 7);
+                    b.setLayoutY((int) event.getY() + 36);
+                    b.setTextFill(Paint.valueOf(color_choice_box.getValue().toString()));
+                    b.setText("☆");
+                    b.setId(Integer.toString(data.getNoteMapSize() - 1));
+                    b.setFont(new Font("Arial", 20));
+                    b.setTooltip(new Tooltip("Title: " + data.getNoteTitle(p) + "\n" + "Content: " + data.getNoteContent(p)));
+                    note_markers.add(b);
+                    anchor_window.getChildren().add(b);
+                    Label l = new Label(title);
+                    l.setId(Integer.toString(data.getNoteMapSize() - 1));
+                    String fTitle = title;
+                    handleClick = (EventHandler<MouseEvent>) mouseEvent -> sideWindowLoader(fTitle, note, p, l, b);
+                    l.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                    b.addEventHandler(MouseEvent.MOUSE_CLICKED, handleClick);
+                    note_list.add(l);
+                    scroll_pane_vbox.getChildren().add(l);
+                    saved = false;
                 } // End of Content cancel check
             } // End of Title cancel check
         } // End of editEnabled check

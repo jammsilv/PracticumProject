@@ -11,23 +11,11 @@ public class MapData implements java.io.Serializable {
     private Map<Point, String> notes_content;
     private Map<Point, String> notes_titles;
 
-    //DO NOT USE THIS ONE -- ONLY MEANT TO BE FILLER FOR NOW
+    // Creating a New Map
     public MapData() {
         this.mapImage = null;
-        this.notes_content = new HashMap<Point, String>();
-        this.notes_titles = new HashMap<Point, String>();
-    }
-    // creating a New Map
-    public MapData(BufferedImage mapImage) {
-        this.mapImage = mapImage;
-        this.notes_content = new HashMap<Point, String>();
-        this.notes_titles = new HashMap<Point, String>();
-    }
-
-    public MapData(BufferedImage mapImage, Map<Point, String> notes_content, Map<Point, String> notes_titles) {
-        this.mapImage = mapImage;
-        this.notes_content = notes_content;
-        this.notes_titles = notes_titles;
+        this.notes_content = new HashMap<>();
+        this.notes_titles = new HashMap<>();
     }
 
     public void setImage(BufferedImage image) {
@@ -48,7 +36,7 @@ public class MapData implements java.io.Serializable {
         notes_titles.remove(p);
     }
 
-    private void modifyNote(Point p, String content, String title) {
+    public void modifyNote(Point p, String content, String title) {
         notes_content.replace(p, content);
         notes_titles.replace(p, title);
     }

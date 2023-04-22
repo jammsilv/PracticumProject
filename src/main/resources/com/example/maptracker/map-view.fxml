@@ -19,7 +19,7 @@
          <font>
             <Font size="16.0" />
          </font></Button>
-      <Button fx:id="enable_edit" layoutX="356.0" layoutY="14.0" mnemonicParsing="false" onAction="#enableEdit" text="Add Note" />
+      <Button layoutX="356.0" layoutY="14.0" mnemonicParsing="false" onAction="#enableEdit" text="Add Note" />
       <ScrollPane layoutX="564.0" layoutY="48.0" prefHeight="290.0" prefWidth="300.0">
          <content>
             <VBox fx:id="scroll_pane_vbox" prefHeight="310.0" prefWidth="294.0" />
@@ -32,15 +32,15 @@
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="288.0" prefWidth="296.0">
                <children>
                   <Button fx:id="edit_note_button" layoutX="245.0" layoutY="16.0" mnemonicParsing="false" text="Edit" />
-                  <Button fx:id="delete_note_button" layoutX="14.0" layoutY="16.0" mnemonicParsing="false" text="Delete" />
+                  <Button fx:id="delete_note_button" layoutX="15.0" layoutY="16.0" mnemonicParsing="false" text="Delete" />
                   <Label fx:id="note_content_label" alignment="TOP_LEFT" layoutX="15.0" layoutY="59.0" prefHeight="214.0" prefWidth="266.0" wrapText="true">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Label fx:id="note_title_label" alignment="CENTER" layoutX="120.0" layoutY="11.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+                  <Label fx:id="note_title_label" alignment="CENTER" layoutX="85.0" layoutY="16.0" prefHeight="26.0" prefWidth="142.0" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="85.0" AnchorPane.rightAnchor="69.0">
                      <font>
-                        <Font size="18.0" />
+                        <Font size="16.0" />
                      </font>
                   </Label>
                </children>
