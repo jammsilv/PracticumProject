@@ -58,6 +58,7 @@ public class HelloController {
     private final FileChooser fileChoice = new FileChooser();
     private Stage stage;
     private File mainFile = null;
+    private String current_file_name = "New Map";
     private boolean editEnabled = false;
     private boolean saved = true;
     private final String[] colors = {"Black", "White", "Gray", "Red", "Blue",
@@ -65,14 +66,6 @@ public class HelloController {
     private ArrayList<Label> note_markers = new ArrayList<>();
     private ArrayList<Label> note_list = new ArrayList<>();
     private EventHandler handleClick;
-
-// CURRENT TO DO LIST
-    // Implement Saving/Loading from any directory, not a preset one [ DONE ]
-        // Make Opening a Project clear the current Project [ DONE ]
-        // Make a "MAIN FILE" that lets you hit "Save" without pulling up the dialog each time [ ??? ]
-    // Implement Editing/Appending Notes [ IN PROGRESS ... ]
-    // Edit how notes are displayed, making a new label below the current one that displays all the necessary information [ DONE ]
-         // Also add deletion/appending notes to this new method of display [ DONE ]
 
     @FXML
     protected void onNewMapButtonClick() throws IOException {
@@ -151,6 +144,7 @@ public class HelloController {
                         ObjectInputStream in = new ObjectInputStream(fileIn);
                         if (data != null) {
                             mainFile = selection;
+                            current_file_name = selection.getName();
                             ArrayList<Point> temp_points = new ArrayList<>();
                             for (Map.Entry<Point, String> entry : data.getNoteContentList().entrySet()) {
                                 temp_points.add(entry.getKey());
@@ -211,30 +205,60 @@ public class HelloController {
     }
     @FXML
     protected void saveProject() {
-        File selection;
-        if (mainFile == null) {
-            selection = fileChoice.showSaveDialog(stage);
-            if (selection != null) {
-                mainFile = selection;
+        if (data.getImage() != null) {
+            File selection;
+            if (mainFile == null) {
+                selection = fileChoice.showSaveDialog(stage);
+                if (selection != null) {
+                    mainFile = selection;
+                }
+            } else {
+                selection = mainFile;
             }
-        } else {
-            selection = mainFile;
+            if (selection != null) {
+                try {
+                    FileOutputStream fileOut = new FileOutputStream(selection);
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(data);
+                    ImageIO.write(data.getImage(), "png", out);
+                    out.close();
+                    fileOut.close();
+                    mainFile = selection;
+                    saved = true;
+                    Dialog saved = new Dialog();
+                    saved.setTitle("Saved");
+                    saved.setContentText("Saved to file '" + selection.getName() + "'.");
+                    saved.getDialogPane().getButtonTypes().add(ok);
+                    saved.showAndWait();
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
+            }
         }
-        if (selection != null) {
-            try {
-                FileOutputStream fileOut = new FileOutputStream(selection);
-                ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                out.writeObject(data);
-                ImageIO.write(data.getImage(), "png", out);
-                out.close();
-                fileOut.close();
-                mainFile = selection;
-                saved = true;
-                Dialog saved = new Dialog();
-                saved.setTitle("Saved");
-                saved.setContentText("Saved to file '" + selection.getName() + "'.");
-            } catch (IOException i) {
-                i.printStackTrace();
+    }
+
+    @FXML
+    protected void saveAsButton() {
+        if (data.getImage() != null) {
+            File selection = fileChoice.showSaveDialog(stage);
+            if (selection != null) {
+                try {
+                    FileOutputStream fileOut = new FileOutputStream(selection);
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(data);
+                    ImageIO.write(data.getImage(), "png", out);
+                    out.close();
+                    fileOut.close();
+                    mainFile = selection;
+                    saved = true;
+                    Dialog saved = new Dialog();
+                    saved.setTitle("Saved");
+                    saved.setContentText("Saved to file '" + selection.getName() + "'.");
+                    saved.getDialogPane().getButtonTypes().add(ok);
+                    saved.showAndWait();
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
             }
         }
     }

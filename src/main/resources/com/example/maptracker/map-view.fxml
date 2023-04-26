@@ -11,22 +11,22 @@
 
 <AnchorPane fx:id="anchor_window" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="890.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.maptracker.HelloController">
    <children>
-      <Button layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#openProject" prefHeight="26.0" prefWidth="75.0" text="Open Map" />
-      <Button layoutX="111.0" layoutY="13.0" mnemonicParsing="false" onAction="#saveProject" prefHeight="26.0" prefWidth="45.0" text="Save" />
+      <Button layoutX="14.0" layoutY="12.0" mnemonicParsing="false" onAction="#openProject" prefHeight="26.0" prefWidth="75.0" text="Open Map" />
+      <Button layoutX="101.0" layoutY="12.0" mnemonicParsing="false" onAction="#saveProject" prefHeight="26.0" prefWidth="45.0" text="Save" />
       <Label layoutX="698.0" layoutY="18.0" text="Notes" />
       <ImageView fx:id="map_image" fitHeight="512.0" fitWidth="512.0" layoutX="14.0" layoutY="48.0" onMouseClicked="#addMapNote" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="434.0" AnchorPane.topAnchor="48.0" />
       <Button id="upload" layoutX="203.0" layoutY="585.0" mnemonicParsing="false" onAction="#uploadImage" prefHeight="38.0" prefWidth="134.0" text="Upload Image">
          <font>
             <Font size="16.0" />
          </font></Button>
-      <Button layoutX="356.0" layoutY="14.0" mnemonicParsing="false" onAction="#enableEdit" text="Add Note" />
+      <Button layoutX="402.0" layoutY="13.0" mnemonicParsing="false" onAction="#enableEdit" text="Add Note" />
       <ScrollPane layoutX="564.0" layoutY="48.0" prefHeight="290.0" prefWidth="300.0">
          <content>
             <VBox fx:id="scroll_pane_vbox" prefHeight="310.0" prefWidth="294.0" />
          </content>
       </ScrollPane>
-      <Label fx:id="edit_status" alignment="CENTER" layoutX="434.0" layoutY="13.0" prefHeight="26.0" prefWidth="85.0" text="Edit Disabled" textAlignment="CENTER" textFill="RED" />
-      <ChoiceBox fx:id="color_choice_box" layoutX="180.0" layoutY="14.0" prefWidth="150.0" value="Black" />
+      <Label fx:id="edit_status" alignment="CENTER" layoutX="479.0" layoutY="12.0" prefHeight="26.0" prefWidth="85.0" text="Edit Disabled" textAlignment="CENTER" textFill="RED" />
+      <ChoiceBox fx:id="color_choice_box" layoutX="239.0" layoutY="13.0" prefWidth="150.0" value="Black" />
       <ScrollPane layoutX="564.0" layoutY="349.0" prefHeight="289.0" prefWidth="300.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="288.0" prefWidth="296.0">
@@ -47,5 +47,6 @@
             </AnchorPane>
         </content>
       </ScrollPane>
+      <Button layoutX="160.0" layoutY="12.0" mnemonicParsing="false" onAction="#saveAsButton" text="Save As..." />
    </children>
 </AnchorPane>
