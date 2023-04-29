@@ -189,6 +189,15 @@ public class HelloController {
                         for (String color : colors) {
                             color_choice_box.getItems().add(color);
                         }
+                        note_title_label.setText("");
+                        note_content_label.setText("");
+                        edit_note_button.setOnAction(f -> {
+
+                        });
+                        delete_note_button.setOnAction(f -> {
+
+                        });
+                        saved = true;
                         in.close();
                         fileIn.close();
                     } catch (IOException i) {
